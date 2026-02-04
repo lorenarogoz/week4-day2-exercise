@@ -4,13 +4,38 @@ function isRecord(value) {
 function isRole(value) {
     return value === 'intern' || value === 'mentor' || value === 'admin';
 }
-function isUser(value) {
-    if (!isRecord(value))
-        return false;
+function validateUser(value) {
+    if (!isRecord(value)) {
+        return { ok: false, error: 'Invalid type for expected object' };
+    }
+    if (!('id' in value)) {
+        return { ok: false, error: 'Missing field: id' };
+    }
+    if (!('email' in value)) {
+        return { ok: false, error: 'Missing field: email' };
+    }
+    if (!('role' in value)) {
+        return { ok: false, error: 'Missing field: role' };
+    }
     const id = value['id'];
     const email = value['email'];
     const role = value['role'];
-    return typeof id === 'string' && typeof email === 'string' && isRole(role);
+    if (typeof id !== 'string') {
+        return { ok: false, error: 'Invalid type for id (expected string)' };
+    }
+    if (typeof email !== 'string') {
+        return { ok: false, error: 'Invalid type for email (expected string)' };
+    }
+    if (typeof role !== 'string') {
+        return { ok: false, error: 'Invalid type for role (expected string)' };
+    }
+    if (!isRole(role)) {
+        return {
+            ok: false,
+            error: 'Invalid role (expected intern|mentor|admin)',
+        };
+    }
+    return { ok: true, value: { id, email, role } };
 }
 export function parseUserConfig(input) {
     let data;
@@ -20,10 +45,7 @@ export function parseUserConfig(input) {
     catch {
         return { ok: false, error: 'Invalid JSON' };
     }
-    if (!isUser(data)) {
-        return { ok: false, error: 'Invalid User shape' };
-    }
-    return { ok: true, value: data };
+    return validateUser(data);
 }
 export function parseUsersConfig(input) {
     let data;
@@ -34,12 +56,15 @@ export function parseUsersConfig(input) {
         return { ok: false, error: 'Invalid JSON' };
     }
     if (!Array.isArray(data)) {
-        return { ok: false, error: 'Invalid Users shape' };
+        return { ok: false, error: 'Invalid type for expected array' };
     }
-    for (const el of data) {
-        if (!isUser(el)) {
-            return { ok: false, error: 'Invalid Users shape' };
+    const users = [];
+    for (let i = 0; i < data.length; i++) {
+        const r = validateUser(data[i]);
+        if (!r.ok) {
+            return { ok: false, error: `Invalid user at index ${i}: ${r.error}` };
         }
+        users.push(r.value);
     }
-    return { ok: true, value: data };
+    return { ok: true, value: users };
 }

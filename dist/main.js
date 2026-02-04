@@ -2,8 +2,8 @@ import { parseUserConfig, parseUsersConfig } from './exercise.js';
 const inputs = [
     `{"id":"u1","email":"a@b.com","role":"intern"}`,
     `{"id":"u2","email":"a@b.com","role":"boss"}`,
-    `{"id":123,"email":"a@b.com","role":"intern"}`,
-    //`{ invalid json }`,
+    `{"email":"a@b.com","role":"intern"}`,
+    `{ invalid json }`,
 ];
 console.log('\n parsUserConfig: ');
 for (const s of inputs) {
@@ -16,10 +16,9 @@ for (const s of inputs) {
     }
 }
 const listInputs = [
-    `[{"id":"u1","email":"a@b.com","role":"intern"},{"id":"u2","email":"x@y.com","role":"mentor"}]`, // OK
-    `{"id":"u1","email":"a@b.com","role":"intern"}`,
-    `[{"id":"u1","email":"a@b.com","role":"intern"},{"id":"u2","email":"x@y.com","role":"boss"}]`, // element invalid
-    `{ invalid json }`,
+    `[{"id":"u1","email":"a@b.com","role":"intern"},{"id":"u2","email":"x@y.com","role":"mentor"}]`,
+    `{"id":"u1","email":"a@b.com"}`,
+    `[{"id":"u1","email":"a@b.com","role":"intern"},{"id":"u2","email":"x@y.com"}]`,
 ];
 console.log('\n parseUsersConfig: ');
 for (const s of listInputs) {
